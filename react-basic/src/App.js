@@ -1,6 +1,7 @@
 // Root component
 
-import { useState } from "react"
+import { createContext, useContext, useState } from "react"
+import { useRef } from "react";
 
 // App -> index.js -> public/index.html(root)
 
@@ -161,26 +162,220 @@ import { useState } from "react"
 // }
 
 
-// 样式控制
+// // 样式控制
 
-import './index.css'
+// import './index.css'
 
-const style = {
-  color: 'purple',
-  fontSize: '60px'
-}
+// const style = {
+//   color: 'purple',
+//   fontSize: '60px'
+// }
 
-function App() {
+// function App() {
+//   return (
+//     <div>
+//       {/* Inline format */}
+//       <span style={{color: 'pink', fontSize: '50px'}}>This is span</span>
+//       <br></br>
+//       <span style={style}>This is span 2</span>
+//       <br></br>
+
+//       {/* Use a class import from a .css file */}
+//       <span className="foo">This is span 3</span>
+//     </div>
+//   )
+// }
+
+
+// // 表单受控绑定
+
+// // 1. Define a react state -- useState
+// // 2. Bond: (1)value -> react state (2) onChange -> e.target.value -> react state
+
+// function App() {
+//   const [value, setValue] = useState('')
+//   return (
+//     <div>
+//       <input
+//       value = {value}
+//       onChange={(e) => setValue(e.target.value)}
+//       type = 'text'
+//       ></input>
+//     </div>
+//   )
+// }
+
+
+// // React 中获取DOM
+
+// // 1. Use useRef to create a ref, bond to DOM tag
+// // 2. When DOM is available, get DOM from ref.current
+// // After the rendering the DOM is built
+
+// function App() {
+//   const inputRef = useRef(null)
+//   const showDOM = () => {
+//     console.dir(inputRef.current)
+//   }
+//   return (
+//     <div>
+//       <input
+//       type = 'text'
+//       ref = {inputRef}
+//       ></input>
+//       <button
+//       onClick={showDOM}
+//       >Get DOM</button>
+//     </div>
+//   )
+// }
+
+
+
+// 组件通信
+
+// // 父传子
+// // 1. Parent component send data: bond property to child component tag
+// // 2. Child component receive data: use props
+
+// function Son (props) {
+//   // props is an object with all data sent from parent component
+//   // { name: 'data from parent' }
+//   // props can pass any type of data
+//   // props is read only object
+//   console.log(props)
+//   return <div>This is son, {props.name}, jsx: {props.child}</div>
+// }
+
+// function Son2 (props) {
+//   // children is a special prop
+//   console.log(props)
+//   return <div>This is son2, {props.children}</div>
+// }
+
+// function App () {
+//   const name = 'This is App name'
+//   return (
+//     <div>
+//       <Son 
+//         name={name} 
+//         age={18}
+//         isTrue={false}
+//         list={['vue', 'react']}
+//         obj={{ name: 'Jack' }}
+//         cb={() => console.log(123)}
+//         child={<span>This is span</span>}
+//       />
+
+//       <Son2>
+//         <span>This is span2</span>
+//       </Son2>
+//     </div>
+//   )
+// }
+
+// // 子传父
+// // Call parent function in child component to send data as coefficient
+
+// function Son ({ onGetSonMsg }) {
+//   const sonMsg = 'this is son msg'
+//   return (
+//     <div>
+//       This is son
+//       <button onClick={() => onGetSonMsg(sonMsg)}>sendMsg</button>
+//     </div>
+//   )
+// }
+
+// function App () {
+//   const [msg, setMsg] = useState('')
+//   const getMsg = (msg) => {
+//     console.log(msg)
+//     setMsg(msg)
+//   }
+//   return (
+//     <div>
+//       This is App, {msg}
+//       <Son 
+//         onGetSonMsg={getMsg}
+//       />
+//     </div>
+//   )
+// }
+
+// // 兄弟组件通信
+// // child1 -> parent -> child2
+
+// function A ({ onGetAName }) {
+//   const name = 'This is A name'
+//   return (
+//     <div>
+//       This is A component,
+//       <button onClick={() => onGetAName(name)}>Send</button>
+//     </div>
+//   )
+// }
+
+// function B ({ name }) {
+//   return (
+//     <div>
+//       This is B component, 
+//       {name}
+//     </div>
+//   )
+// }
+
+// function App () {
+//   const [name, setName] = useState('')
+//   const getAName = (name) => {
+//     console.log(name)
+//     setName(name)
+//   }
+//   return (
+//     <div>
+//       This is App
+//       <A onGetAName={getAName} />
+//       <B name={name} />
+//     </div>
+//   )
+// }
+
+// 跨层通信
+// Use context mechanism
+// App -> A -> B
+// 1. Use createContext method to create a context object
+
+const MsgContext = createContext()
+
+// 2. Use Provider to provide data from top level component
+// 3. Use useContext hook to receive data from bottom level component
+
+function A () {
   return (
     <div>
-      {/* Inline format */}
-      <span style={{color: 'pink', fontSize: '50px'}}>This is span</span>
-      <br></br>
-      <span style={style}>This is span 2</span>
-      <br></br>
+      This is A component
+      <B />
+    </div>
+  )
+}
 
-      {/* Use a class import from a .css file */}
-      <span className="foo">This is span 3</span>
+function B () {
+  const msg = useContext(MsgContext)
+  return (
+    <div>
+      This is B component, {msg}
+    </div>
+  )
+}
+
+function App () {
+  const msg = 'This is App message'
+  return (
+    <div>
+      <MsgContext.Provider value={msg}>
+        This is App
+        <A />
+      </MsgContext.Provider>
     </div>
   )
 }
