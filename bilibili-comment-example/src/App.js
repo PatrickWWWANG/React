@@ -5,6 +5,9 @@ import jay from './images/jay.png'
 import { useState } from "react"
 import _ from 'lodash'
 import classNames from 'classnames'
+import { v4 as uuidv4 } from 'uuid'
+import dayjs from 'dayjs'
+import { useRef } from 'react'
 
 /**
  * 评论列表的渲染和操作
@@ -111,6 +114,32 @@ const App = () => {
     }
   }
 
+  // Publish comment
+  const [content, setContent] = useState('')
+  const inputRef = useRef(null)
+  const handlePublish = () => {
+    setCommentList([
+      ...commentList,
+      {
+        rpid: uuidv4(), // Random rpid
+        user: {
+          uid: '30009257',
+          avatar,
+          uname: '黑马前端',
+        },
+        content: content,
+        ctime: dayjs(new Date()).format('MM-DD HH:mm'), // Format time '10-19 09:00'
+        like: 66,
+      }
+    ])
+    
+    // 1. Empty comment box
+    setContent('')
+
+    // 2. Refocus
+    inputRef.current.focus()
+  }
+
   return (
     <div className="app">
       {/* 导航 Tab */}
@@ -150,10 +179,15 @@ const App = () => {
             <textarea
               className="reply-box-textarea"
               placeholder="发一条友善的评论"
+              ref={inputRef}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
             />
             {/* 发布按钮 */}
             <div className="reply-box-send">
-              <div className="send-text">发布</div>
+              <div className="send-text"
+                onClick={handlePublish}
+              >发布</div>
             </div>
           </div>
         </div>
