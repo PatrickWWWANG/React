@@ -1,6 +1,6 @@
 // Root component
 
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useState, useEffect } from "react"
 import { useRef } from "react";
 
 // App -> index.js -> public/index.html(root)
@@ -340,42 +340,158 @@ import { useRef } from "react";
 //   )
 // }
 
-// 跨层通信
-// Use context mechanism
-// App -> A -> B
-// 1. Use createContext method to create a context object
+// // 跨层通信
+// // Use context mechanism
+// // App -> A -> B
+// // 1. Use createContext method to create a context object
 
-const MsgContext = createContext()
+// const MsgContext = createContext()
 
-// 2. Use Provider to provide data from top level component
-// 3. Use useContext hook to receive data from bottom level component
+// // 2. Use Provider to provide data from top level component
+// // 3. Use useContext hook to receive data from bottom level component
 
-function A () {
-  return (
-    <div>
-      This is A component
-      <B />
-    </div>
-  )
+// function A () {
+//   return (
+//     <div>
+//       This is A component
+//       <B />
+//     </div>
+//   )
+// }
+
+// function B () {
+//   const msg = useContext(MsgContext)
+//   return (
+//     <div>
+//       This is B component, {msg}
+//     </div>
+//   )
+// }
+
+// function App () {
+//   const msg = 'This is App message'
+//   return (
+//     <div>
+//       <MsgContext.Provider value={msg}>
+//         This is App
+//         <A />
+//       </MsgContext.Provider>
+//     </div>
+//   )
+// }
+
+
+
+// // useEffect Hook
+
+// const URL = 'http://geek.itheima.net/v1_0/channels'
+
+// function App () {
+//   const [list, setList] =  useState([])
+
+//   useEffect(() => {
+//     // The method that you want to take after rendering finish (get channel list)
+//     async function getList () {
+//       const res = await fetch(URL)
+//       const jsonRes = await res.json()
+//       console.log(jsonRes)
+//       setList(jsonRes.data.channels)
+//     }
+//     getList()
+//   }, [])
+//   // Render with a state
+
+//   return (
+//     <div>
+//       This is App <br></br>
+//       <ul>
+//         { list.map(item => <li key={item.id}>{item.name}</li>) }
+//       </ul>
+//     </div>
+//   )
+// }
+
+// // useEffect dependency
+// function App () {
+//   const [count, setCount] = useState(0)
+
+  // 1. No dependency -> initial + component update
+  // useEffect(() => {
+  //   console.log('side effect')
+  // })
+
+  // 2. Empty array dependency -> initial only
+  // useEffect(() => {
+  //   console.log('side effect')
+  // }, [])
+
+  // 3. Specific dependency -> initial + dependency update
+//   useEffect(() => {
+//     console.log('side effect')
+//   }, [count])
+
+//   return (
+//     <div>
+//       This is App
+//       <button onClick={() => setCount(count + 1)}>+{count}</button>
+//     </div>
+//   )
+// }
+
+// // useEffect cleanup side effect
+// function Son () {
+//   // Add a timer after rendering
+//   useEffect(() => {
+//     const timer = setInterval(() => {
+//       console.log('Timer...')
+//     }, 1000)
+
+//     return () => {
+//       // cleanup side effect (component offloading)
+//       clearInterval(timer)
+//     }
+//   }, [])
+//   return <div>This is Son</div>
+// }
+
+// function App () {
+//   const[show, setShow] = useState(true)
+//   return (
+//     <div>
+//       {show && <Son />}
+//       <button onClick={() => {setShow(false)}}>Offload Son Component</button>
+//     </div>
+//   )
+// }
+
+
+
+// 自定义hook useXxx
+
+function useToggle () {
+  // Reusable code
+  const [value, setValue] = useState(true)
+  const toggle = () => setValue(!value)
+
+  // return state and function that will be used outside
+  return {
+    value,
+    toggle
+  }
 }
 
-function B () {
-  const msg = useContext(MsgContext)
-  return (
-    <div>
-      This is B component, {msg}
-    </div>
-  )
-}
+// Build custom hook:
+// 1. define a function useXxx
+// 2. write reusable code in the function
+// 3. return state and callback function that will be used outside, as object or array
+// 4. call the function in component, decompose state and function to use
 
 function App () {
-  const msg = 'This is App message'
+  const {value, toggle} = useToggle()
   return (
     <div>
-      <MsgContext.Provider value={msg}>
-        This is App
-        <A />
-      </MsgContext.Provider>
+      <button onClick={toggle}>Toggle</button>
+      {value && <div>This is div</div>}
     </div>
   )
 }
